@@ -1,1 +1,3 @@
-alert 'blub'
+$(document).ready ->
+    alert('blub')
+
