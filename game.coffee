@@ -22,12 +22,14 @@ class Item
     setTexturePos: (@textureX, @textureY) ->
         @htmlElem.css 'background-position', "#{-@textureX}px #{-@textureY}px"
 
-    setAnimation: (@animationStartX, @animationStartY, @animationSteps) ->
+    setAnimation: (@animationStartX, @animationStartY, @animationSteps, @animationSpeed = 1) ->
         @animationCurrentStep = -1
     
     nextFrame: ->
-        @animationCurrentStep = (@animationCurrentStep + 1) % @animationSteps
-        @setTexturePos  @animationStartX + @animationCurrentStep * @width, \
+        @animationCurrentStep = (@animationCurrentStep + 1)                 \
+                              % (@animationSteps * @animationSpeed)
+        @setTexturePos  @animationStartX +                                  \
+             Math.floor(@animationCurrentStep / @animationSpeed) * @width,  \
                         @animationStartY
 
 class RescEngine
@@ -63,4 +65,6 @@ $(document).ready ->
     item3.setTexturePos 64, 0
     item4.setTexturePos 94, 0
 
-    item.setAnimation 0, 0, 3
+    item.setAnimation 0, 0, 3, 10
+
+    interval = window.setInterval 'engine.nextFrame()', 33
