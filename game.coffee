@@ -1,3 +1,5 @@
+engine = null
+
 class Item
     constructor: (@x = 0, @y = 0, @width = 32, @height = 32) ->
         @htmlElem = $ '<div>'
@@ -7,6 +9,7 @@ class Item
         @htmlElem.css 'width', @width
         @htmlElem.css 'height', @height
         @setTexture('graphics.png')
+        @setAnimation(0, 0, 1)
 
     setPosition: (@x, @y) ->
         @htmlElem.css 'left', @x
@@ -19,6 +22,13 @@ class Item
     setTexturePos: (@textureX, @textureY) ->
         @htmlElem.css 'background-position', "#{-@textureX}px #{-@textureY}px"
 
+    setAnimation: (@animationStartX, @animationStartY, @animationSteps) ->
+        @animationCurrentStep = -1
+    
+    nextFrame: ->
+        @animationCurrentStep = (@animationCurrentStep + 1) % @animationSteps
+        @setTexturePos  @animationStartX + @animationCurrentStep * @width, \
+                        @animationStartY
 
 class RescEngine
     constructor: (@fieldid, @width, @height) ->
@@ -35,6 +45,9 @@ class RescEngine
         @staticItems.push(item)
         @field.append(item.htmlElem)
 
+    nextFrame: ->
+        item.nextFrame() for item in @staticItems
+
 $(document).ready ->
     engine = new RescEngine '#gamefield', 800, 600
     item = new Item
@@ -49,3 +62,5 @@ $(document).ready ->
     item2.setTexturePos 32, 0
     item3.setTexturePos 64, 0
     item4.setTexturePos 94, 0
+
+    item.setAnimation 0, 0, 3
