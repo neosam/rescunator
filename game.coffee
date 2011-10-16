@@ -1,5 +1,7 @@
 engine = null
 
+
+
 class Item
     constructor: (@x = 0, @y = 0, @width = 32, @height = 32) ->
         @htmlElem = $ '<div>'
@@ -32,6 +34,17 @@ class Item
              Math.floor(@animationCurrentStep / @animationSpeed) * @width,  \
                         @animationStartY
 
+class MovableItem extends Item
+    constructor: ->
+        super()
+        @velocityX = 0
+        @velocityY = 0
+    
+    nextFrame: ->
+        super()
+        @setPosition @x + @velocityX, @y + @velocityY
+
+
 class RescEngine
     constructor: (@fieldid, @width, @height) ->
         @field = $ @fieldid
@@ -52,7 +65,7 @@ class RescEngine
 
 $(document).ready ->
     engine = new RescEngine '#gamefield', 800, 600
-    item = new Item
+    item = new MovableItem
     item2 = new Item 100, 100
     item3 = new Item 250, 444
     item4 = new Item 555, 100
@@ -66,5 +79,7 @@ $(document).ready ->
     item4.setTexturePos 94, 0
 
     item.setAnimation 0, 0, 3, 10
+    item.velocityX = 2
+    item.velocityY = 1
 
     interval = window.setInterval 'engine.nextFrame()', 33
