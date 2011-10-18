@@ -42,8 +42,11 @@ class MovableItem extends Item
     
     nextFrame: ->
         super()
-        @setPosition @x + @velocityX, @y + @velocityY
+        @setPosition  @x + @velocityX, @y + @velocityY
 
+    willCollide: (otherItem) ->
+        
+        
 
 class RescEngine
     constructor: (@fieldid, @width, @height) ->
