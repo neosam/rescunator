@@ -1,6 +1,16 @@
 engine = null
 
+oneDCollision = (p1, w1, p2, w2) ->
+    size = w1 + w2
+    d1 = p2 + w2 - p1
+    d2 = p1 + w1 - p2
+    if (0 < d1 < size or 0 < d2 < size)
+        return true
+    return false
 
+rectCollision = (r1, r2)->
+    return oneDCollision(r1.x, r1.width, r2.x, r2.width) \
+            and oneDCollision(r1.y, r1.height, r2.y, r2.height)
 
 class Item
     constructor: (@x = 0, @y = 0, @width = 32, @height = 32) ->
