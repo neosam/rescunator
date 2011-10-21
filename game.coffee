@@ -9,13 +9,15 @@ oneDCollision = (p1, w1, p2, w2) ->
     return false
 
 rectCollision = (r1, r2)->
+    #console.log r1
+    #console.log r2
     return oneDCollision(r1.x, r1.width, r2.x, r2.width) \
             and oneDCollision(r1.y, r1.height, r2.y, r2.height)
 
 class Item
     constructor: (@x = 0, @y = 0, @width = 32, @height = 32) ->
         @htmlElem = $ '<div>'
-        @htmlElem.css 'position', 'relative'
+        @htmlElem.css 'position', 'absolute'
         @htmlElem.css 'left', @x
         @htmlElem.css 'top', @y
         @htmlElem.css 'width', @width
@@ -37,7 +39,7 @@ class Item
     setAnimation: (@animationStartX, @animationStartY, @animationSteps, @animationSpeed = 1) ->
         @animationCurrentStep = -1
     
-    nextFrame: ->
+    nextFrame: (engine) ->
         @animationCurrentStep = (@animationCurrentStep + 1)                 \
                               % (@animationSteps * @animationSpeed)
         @setTexturePos  @animationStartX +                                  \
@@ -50,21 +52,38 @@ class MovableItem extends Item
         @velocityX = 0
         @velocityY = 0
     
-    nextFrame: ->
-        super()
-        @setPosition  @x + @velocityX, @y + @velocityY
+    nextFrame: (engine) ->
+        super engine
+        @setPosition  @x + @velocityX, @y + @velocityY if not @crashing(engine)
 
     # return:  0 if no collision
     #          1 if x axis collides
     #          2 if y axis collides
     #          3 if both axes collides
     willCollide: (otherItem) ->
-        return 0
-        
+        rectX =
+            x: @x + @velocityX
+            y: @y
+            width: @width
+            height: @height
+        rectY =
+            x: @x
+            y: @y + @velocityY
+            width: @width
+            height: @height
+        return \
+                1 if rectCollision(rectX, otherItem) \
+              + 2 if rectCollision(rectY, otherItem)
+
+    crashing: (engine) ->
+        for item in engine.staticItems
+            return true if @willCollide(item) > 0
+        return false
 
 class RescEngine
     constructor: (@fieldid, @width, @height) ->
         @field = $ @fieldid
+        @field.css 'position', 'relative'
         @field.css 'width', @width + 'px'
         @field.css 'height', @height + 'px'
         @field.css 'border', 'solid black 1px'
@@ -72,21 +91,27 @@ class RescEngine
         @field.css 'overflow', 'hidden'
 
         @staticItems = []
+        @allItems = []
 
     addStaticItem: (item) ->
         @staticItems.push(item)
+        @allItems.push(item)
+        @field.append(item.htmlElem)
+
+    addItem: (item) ->
+        @allItems.push(item)
         @field.append(item.htmlElem)
 
     nextFrame: ->
-        item.nextFrame() for item in @staticItems
+        item.nextFrame(this) for item in @allItems
 
 $(document).ready ->
     engine = new RescEngine '#gamefield', 800, 600
     item = new MovableItem
     item2 = new Item 100, 100
-    item3 = new Item 250, 444
-    item4 = new Item 555, 100
-    engine.addStaticItem item
+    item3 = new Item 64, 64
+    item4 = new Item 555, 190
+    engine.addItem item
     engine.addStaticItem item2
     engine.addStaticItem item3
     engine.addStaticItem item4
