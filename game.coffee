@@ -9,8 +9,6 @@ oneDCollision = (p1, w1, p2, w2) ->
     return false
 
 rectCollision = (r1, r2)->
-    #console.log r1
-    #console.log r2
     return oneDCollision(r1.x, r1.width, r2.x, r2.width) \
             and oneDCollision(r1.y, r1.height, r2.y, r2.height)
 
@@ -23,7 +21,9 @@ class Item
         @htmlElem.css 'width', @width
         @htmlElem.css 'height', @height
         @setTexture('graphics.png')
-        @setAnimation(0, 0, 1)
+        @animations =
+            nothing: [0, 0, @width, @height, 1, 10]
+        @setAnimationName('nothing')
 
     setPosition: (@x, @y) ->
         @htmlElem.css 'left', @x
@@ -38,6 +38,16 @@ class Item
 
     setAnimation: (@animationStartX, @animationStartY, @animationSteps, @animationSpeed = 1) ->
         @animationCurrentStep = -1
+
+    setAnimationSet: (@animations) ->
+
+    setAnimationName: (@animationName) ->
+        animation = @animations[@animationName]
+        console.log @animations if not animation
+        return if not animation
+        @width = animation[2]
+        @height = animation[3]
+        @setAnimation(animation[0], animation[1], animation[4], animation[5])
     
     nextFrame: (engine) ->
         @animationCurrentStep = (@animationCurrentStep + 1)                 \
@@ -105,6 +115,10 @@ class RescEngine
     nextFrame: ->
         item.nextFrame(this) for item in @allItems
 
+item = null
+item2 = null
+item3 = null
+item4 = null
 $(document).ready ->
     engine = new RescEngine '#gamefield', 800, 600
     item = new MovableItem
@@ -120,7 +134,8 @@ $(document).ready ->
     item3.setTexturePos 64, 0
     item4.setTexturePos 94, 0
 
-    item.setAnimation 0, 0, 3, 10
+    item.setAnimationSet animations.hero
+    item.setAnimationName 'walk'
     item.velocityX = 2
     item.velocityY = 1
 
