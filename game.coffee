@@ -1,5 +1,10 @@
 engine = null
 
+KEY_UP = 38
+KEY_DOWN = 40
+KEY_LEFT =37
+KEY_RIGHT = 39
+
 oneDCollision = (p1, w1, p2, w2) ->
     size = w1 + w2
     d1 = p2 + w2 - p1
@@ -90,6 +95,34 @@ class MovableItem extends Item
             return true if @willCollide(item) > 0
         return false
 
+
+## Insert Keyboard input for MovableItem
+class Player extends MovableItem
+    constructor: (engine) ->
+        super()
+        @defaultSpeedX = 4
+        @defaultSpeedY = 4
+        player = this
+        $(window).keypress (event) ->
+            switch event.keyCode
+                when KEY_UP
+                    player.velocityY = -player.defaultSpeedY
+                when KEY_DOWN
+                    player.velocityY = player.defaultSpeedY
+                when KEY_LEFT
+                    player.velocityX = -player.defaultSpeedX
+                when KEY_RIGHT
+                    player.velocityX = player.defaultSpeedX
+            return false
+        $(window).keyup (event) ->
+            console.log "keyup #{event.keyCode}"
+            switch event.keyCode
+                when KEY_UP, KEY_DOWN
+                    player.velocityY = 0
+                when KEY_LEFT, KEY_RIGHT
+                    player.velocityX = 0
+            return false
+
 class RescEngine
     constructor: (@fieldid, @width, @height) ->
         @field = $ @fieldid
@@ -121,7 +154,7 @@ item3 = null
 item4 = null
 $(document).ready ->
     engine = new RescEngine '#gamefield', 800, 600
-    item = new MovableItem
+    item = new Player engine
     item2 = new Item 100, 100
     item3 = new Item 64, 64
     item4 = new Item 555, 190
